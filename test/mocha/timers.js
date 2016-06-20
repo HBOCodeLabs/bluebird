@@ -105,7 +105,6 @@ describe("timeout", function () {
                 globalObject.setTimeout = globalObject.oldSetTimeout;
                 globalObject.clearTimeout = globalObject.oldClearTimeout;
                 expectedHandleType = typeof (globalObject.setTimeout(function(){}, 1));
-                expectedHandleType = "number";
             });
 
             after(function() {
@@ -122,7 +121,7 @@ describe("timeout", function () {
                 };
 
                 return Promise.delay(1).timeout(10000).then(function() {
-                    // assert.strictEqual(expectedHandleType, handleType);
+                    assert.strictEqual(expectedHandleType, handleType);
                 });
             });
 
@@ -137,7 +136,7 @@ describe("timeout", function () {
                 return new Promise(function(_, reject) {
                     setTimeout(reject, 10);
                 }).timeout(10000).then(null, function() {
-                    // assert.strictEqual(expectedHandleType, handleType);
+                    assert.strictEqual(expectedHandleType, handleType);
                 });
             });
         })
