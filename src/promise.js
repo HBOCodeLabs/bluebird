@@ -165,6 +165,8 @@ Promise.prototype.error = function (fn) {
     return this.caught(util.originatesFromRejection, fn);
 };
 
+Promise.getNewLibraryCopy = module.exports;
+
 Promise.is = function (val) {
     return val instanceof Promise;
 };
@@ -206,14 +208,11 @@ Promise.reject = Promise.rejected = function (reason) {
     return ret;
 };
 
-Promise.setScheduler = function(fn, setTimeoutFn) {
+Promise.setScheduler = function(fn) {
     if (typeof fn !== "function") {
         throw new TypeError(FUNCTION_ERROR + util.classString(fn));
     }
-    if (setTimeoutFn !== undefined && typeof setTimeoutFn !== "function") {
-        throw new TypeError(FUNCTION_ERROR + util.classString(setTimeoutFn));
-    }
-    return async.setScheduler(fn, setTimeoutFn);
+    return async.setScheduler(fn);
 };
 
 Promise.setTimeoutScheduler = function(setTimeoutFn) {
