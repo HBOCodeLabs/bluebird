@@ -191,7 +191,7 @@ describe("delay", function () {
 
     it("should call custom timeout function", function() {
         var custom = false;
-        var customTimeOutFunction = function  (fn, ms) {
+        var customTimeOutFunction = function (fn, ms) {
             custom = true;
             assert(ms === 3);
             setTimeout(fn, ms);

@@ -17,7 +17,7 @@ function Async() {
     this.drainQueues = function () {
         self._drainQueues();
     };
-    this._setTimeout = undefined;
+    this._customSetTimeout = undefined;
     this._schedule = schedule;
 }
 
@@ -29,14 +29,14 @@ Async.prototype.setScheduler = function(fn) {
 };
 
 Async.prototype.setTimeoutScheduler = function(setTimeoutFn) {
-    var prev = this._setTimeout;
-    this._setTimeout = setTimeoutFn;
+    var prev = this._customSetTimeout;
+    this._customSetTimeout = setTimeoutFn;
     return prev;
 };
 
-// returns inbuilt timeout function, or custome one if set.
+// returns built-in timeout function, or custom one if set.
 Async.prototype.getTimeoutFn = function () {
-    return this._setTimeout || setTimeout;
+    return this._customSetTimeout || setTimeout;
 };
 
 Async.prototype.hasCustomScheduler = function() {
