@@ -363,8 +363,15 @@ var ret = {
     markAsOriginatingFromRejection: markAsOriginatingFromRejection,
     classString: classString,
     copyDescriptors: copyDescriptors,
-    hasDevTools: typeof chrome !== "undefined" && chrome &&
-                 typeof chrome.loadTimes === "function",
+    // bluebird behaves bit differently when running in chrome debugger
+    // its inconvient as some bugs would repro only when not running debugger.
+    // turning off the feature.
+    // but we should consider controlling this flag from build environemnt
+    // to flesh out timing bugs
+    // TODO: HAD-1673 Add artificial delay to promises to weed out timing issues causing test instability
+    // hasDevTools: typeof chrome !== "undefined" && chrome &&
+    //              typeof chrome.loadTimes === "function",
+    hasDevTools: false,
     isNode: isNode,
     env: env,
     global: globalObject,
