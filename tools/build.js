@@ -215,12 +215,22 @@ function buildBrowser(sources, dir, tmpDir, depsRequireCode, minify, npmPackage,
                 });
                 return Promise.promisify(b.bundle, b)().then(function(src) {
                     var alias = "\
-                    ;if (typeof window !== 'undefined' && window !== null) {       \
-                        window.P = window.Promise;                                 \
-                    } else if (typeof self !== 'undefined' && self !== null) {     \
-                        self.P = self.Promise;                                     \
-                    }";
+                    \n;if (typeof window !== 'undefined' && window !== null) {       \
+                    \n    window.P = window.Promise;                                 \
+                    \n} else if (typeof self !== 'undefined' && self !== null) {     \
+                    \n    self.P = self.Promise;                                     \
+                    \n}                                                              \
+                    \n";
+
                     src = src + alias;
+
+                    // enclose source inside a function
+                    // enclosure to prevent "top line if statement"
+                    //
+                    var pre =  "(function () {\n";
+                    var post = "\n})();\n";
+                    src = pre + src + post;
+
                     src = src.replace(/\brequire\b/g, "_dereq_");
                     var minWrite, write;
                     if (minify) {

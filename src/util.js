@@ -368,7 +368,8 @@ var ret = {
     // turning off the feature.
     // but we should consider controlling this flag from build environemnt
     // to flesh out timing bugs
-    // TODO: HAD-1673 Add artificial delay to promises to weed out timing issues causing test instability
+    // TODO: HAD-1673 Add artificial delay to promises to weed out
+    // timing issues causing test instability
     // hasDevTools: typeof chrome !== "undefined" && chrome &&
     //              typeof chrome.loadTimes === "function",
     hasDevTools: false,
