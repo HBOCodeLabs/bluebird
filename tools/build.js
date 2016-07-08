@@ -215,12 +215,22 @@ function buildBrowser(sources, dir, tmpDir, depsRequireCode, minify, npmPackage,
                 });
                 return Promise.promisify(b.bundle, b)().then(function(src) {
                     var alias = "\
-                    ;if (typeof window !== 'undefined' && window !== null) {       \
-                        window.P = window.Promise;                                 \
-                    } else if (typeof self !== 'undefined' && self !== null) {     \
-                        self.P = self.Promise;                                     \
-                    }";
+                    \n;if (typeof window !== 'undefined' && window !== null) {       \
+                    \n    window.P = window.Promise;                                 \
+                    \n} else if (typeof self !== 'undefined' && self !== null) {     \
+                    \n    self.P = self.Promise;                                     \
+                    \n}                                                              \
+                    \n";
+
                     src = src + alias;
+
+                    // hadron likes all code inside function enclosures.
+                    // https://github.com/HBOCodeLabs/Hadron/blob/master/build_env/tasks/grunt-postprocess.js#L382
+                    // enclose evrything in function enclosures.
+                    var pre =  "(function () {\n";
+                    var post = "\n})();\n";
+                    src = pre + src + post;
+
                     src = src.replace(/\brequire\b/g, "_dereq_");
                     var minWrite, write;
                     if (minify) {
