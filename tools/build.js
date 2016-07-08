@@ -224,9 +224,9 @@ function buildBrowser(sources, dir, tmpDir, depsRequireCode, minify, npmPackage,
 
                     src = src + alias;
 
-                    // enclose source inside a function
-                    // enclosure to prevent "top line if statement"
-                    //
+                    // hadron likes all code inside function enclosures.
+                    // https://github.com/HBOCodeLabs/Hadron/blob/master/build_env/tasks/grunt-postprocess.js#L382
+                    // enclose evrything in function enclosures.
                     var pre =  "(function () {\n";
                     var post = "\n})();\n";
                     src = pre + src + post;
