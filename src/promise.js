@@ -79,6 +79,15 @@ function Promise(executor) {
     }
     this._promiseCreated();
     this._fireEvent("promiseCreated", this);
+
+    if (debug.trackHadronTest()) {
+        // remember the hadron test that created this promise
+        //
+        // NOTE: _global is passed down
+        // by enclosed function which is added later
+        // by build process (tools/build.js!buildBrowser)
+        this.currentHadronTest = _global.currentHadronTest;
+    }
 }
 
 Promise.prototype.toString = function () {
@@ -724,6 +733,11 @@ Promise.prototype._rejectPromises = function (len, reason) {
 Promise.prototype._settlePromises = function () {
     var bitField = this._bitField;
     var len = BIT_FIELD_READ(LENGTH_MASK);
+
+    if (this.currentHadronTest !== undefined && _global.currentHadronTest !== this.currentHadronTest) {
+        throw new Error("settling promise created by: " + this.currentHadronTest + ", inside:" + _global.currentHadronTest +
+            ". Promises should resolve during the test that created them to avoid timing-related bugs. ");
+    }
 
     if (len > 0) {
         if (BIT_FIELD_CHECK(IS_REJECTED_OR_CANCELLED)) {

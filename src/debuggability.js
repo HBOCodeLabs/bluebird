@@ -111,6 +111,10 @@ Promise.onUnhandledRejectionHandled = function (fn) {
                                  : undefined;
 };
 
+Promise.enableHadronTestTracking = function (enable) {
+    config.trackHadronTest = enable;
+};
+
 var disableLongStackTraces = function() {};
 Promise.longStackTraces = function () {
     if (async.haveItemsQueued() && !config.longStackTraces) {
@@ -230,6 +234,11 @@ Promise.config = function(opts) {
             disableLongStackTraces();
         }
     }
+
+    if ("trackHadronTest" in opts) {
+        Promise.enableHadronTestTracking(opts.trackHadronTest);
+    }
+
     if ("warnings" in opts) {
         var warningsOption = opts.warnings;
         config.warnings = !!warningsOption;
@@ -852,7 +861,11 @@ var config = {
     warnings: warnings,
     longStackTraces: false,
     cancellation: false,
-    monitoring: false
+    monitoring: false,
+    // when enabled, this will track hadron tests
+    // to make sure the promise created by a test
+    // do not settle after test has finished.
+    trackHadronTest: false
 };
 
 if (longStackTraces) Promise.longStackTraces();
@@ -869,6 +882,9 @@ return {
     },
     monitoring: function() {
         return config.monitoring;
+    },
+    trackHadronTest: function () {
+        return config.trackHadronTest;
     },
     propagateFromFunction: function() {
         return propagateFromFunction;
