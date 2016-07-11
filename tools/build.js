@@ -226,9 +226,9 @@ function buildBrowser(sources, dir, tmpDir, depsRequireCode, minify, npmPackage,
 
                     // hadron likes all code inside function enclosures.
                     // https://github.com/HBOCodeLabs/Hadron/blob/master/build_env/tasks/grunt-postprocess.js#L382
-                    // enclose evrything in function enclosures.
-                    var pre =  "(function () {\n";
-                    var post = "\n})();\n";
+                    // enclose everything in function enclosures.
+                    var pre =  "(function (_global) {\n";
+                    var post = "\n})(this);\n";
                     src = pre + src + post;
 
                     src = src.replace(/\brequire\b/g, "_dereq_");
