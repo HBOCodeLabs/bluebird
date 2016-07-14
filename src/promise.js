@@ -88,6 +88,7 @@ function Promise(executor) {
         // by enclosed function which is added later
         // by build process (tools/build.js!buildBrowser)
         this.currentHadronTest = _global.currentHadronTest;
+        this.creationStack     = new Error().stack;
     }
 }
 
@@ -742,9 +743,11 @@ Promise.prototype._settlePromises = function () {
         // by build process (tools/build.js!buildBrowser)
         _global.currentHadronTest !== this.currentHadronTest) {
         throw new Error(
-            "settling promise created by: " + this.currentHadronTest +
-            ", inside:" + _global.currentHadronTest + ". " +
-            "Promises should resolve during the test that created them " +
+            "Promise was created by test : " + this.currentHadronTest +
+            "But was settled during      : " + _global.currentHadronTest +
+            "\nStack @ creation:\n" +
+            this.creationStack +
+            "\nPromises should resolve during the test that created them " +
             "to avoid timing-related bugs.");
     }
 
