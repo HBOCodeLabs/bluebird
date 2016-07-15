@@ -18,7 +18,11 @@ var mapToEntries = (function() {
         index++;
     }
 
-    return function mapToEntries(map) {
+    // NOTE: this used to be named function
+    // but making it anonymous to make safari
+    // happy. safari did not like
+    // optimized/mangled output of this named function.
+    return function (map) {
         size = map.size;
         index = 0;
         var ret = new Array(map.size * 2);
