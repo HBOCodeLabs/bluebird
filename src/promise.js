@@ -88,7 +88,16 @@ function Promise(executor) {
         // by enclosed function which is added later
         // by build process (tools/build.js!buildBrowser)
         this.currentHadronTest = _global.currentHadronTest;
-        this.creationStack     = new Error().stack;
+
+        // capture stack at creation time.
+        // stack will be captured only if longStackTraces are enabled.
+        this._captureStackTrace();
+        // _captureStackTrace writes trace to this._trace.
+        // get it from there, and clear this._trace.
+        this.creationStack = this._trace === undefined
+                                ? "Enable longStackTraces to capture stack"
+                                : this._trace.stack;
+        this._trace = undefined;
     }
 }
 
@@ -745,8 +754,10 @@ Promise.prototype._settlePromises = function () {
         throw new Error(
             "Promise was created by test : " + this.currentHadronTest +
             "But was settled during      : " + _global.currentHadronTest +
-            "\nStack @ creation:\n" +
+            "\nStack @ creation:" +
+            "\n==========================\n" +
             this.creationStack +
+            "\n==========================\n" +
             "\nPromises should resolve during the test that created them " +
             "to avoid timing-related bugs.");
     }
