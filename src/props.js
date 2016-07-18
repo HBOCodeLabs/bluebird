@@ -18,7 +18,18 @@ var mapToEntries = (function() {
         index++;
     }
 
-    return function mapToEntries(map) {
+    // NOTE: this used to be named function
+    // but making it anonymous to make safari happy.
+    // safari has a bug:
+    // Mangling named functions in strict mode can cause syntax errors in Safari
+    // https://github.com/mishoo/UglifyJS2/issues/179
+    // Safari was failing to load this code as generated code looked like:
+    // return function n(n) {
+    //     ...
+    // }
+    // there is no reason for this function to be named. so workaround is
+    // making it anonymous.
+    return function (map) {
         size = map.size;
         index = 0;
         var ret = new Array(map.size * 2);
