@@ -242,6 +242,14 @@ Promise.setTimeoutScheduler = function(setTimeoutFn) {
     return async.setTimeoutScheduler(setTimeoutFn);
 };
 
+Promise.setBatchSize = function(batchSize) {
+    if (typeof batchSize !== "number" || batchSize <= 0) {
+        throw new TypeError("batchSize must be a positive number: " +
+            util.classString(batchSize));
+    }
+    return async.setBatchSize(batchSize);
+};
+
 Promise.prototype._then = function (
     didFulfill,
     didReject,

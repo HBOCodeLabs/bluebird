@@ -55,5 +55,43 @@ describe("schedule", function () {
                 assert.fail();
             });
         });
+
+        describe("Promise.setBatchSize", function() {
+            it("should throw for non number", function() {
+                try {
+                    Promise.setBatchSize("foo");
+                } catch (e) {
+                    return Promise.resolve();
+                }
+                assert.fail();
+            });
+
+            it("should throw for batchsize of zero", function() {
+                try {
+                    Promise.setBatchSize(0);
+                } catch (e) {
+                    return Promise.resolve();
+                }
+                assert.fail();
+            });
+
+            it("should throw for negative batchsize", function() {
+                try {
+                    Promise.setBatchSize(-7);
+                } catch (e) {
+                    return Promise.resolve();
+                }
+                assert.fail();
+            });
+
+            it("should not throw for positive batchsize", function() {
+                try {
+                    Promise.setBatchSize(5);
+                } catch (e) {
+                    assert.fail();
+                }
+                return Promise.resolve();
+            });
+        });
     }
 });
