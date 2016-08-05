@@ -19,7 +19,12 @@ function Async() {
     };
     this._customSetTimeout = undefined;
     this._schedule = schedule;
-    this._batchSize = 1000;
+
+    // by default set to large enough
+    // number that no batching would happen
+    // Number.MAX_SAFE_INTEGER would have been more
+    // appropriate but it isnt available for IE.
+    this._batchSize = Math.pow(2, 32) - 1;
 }
 
 Async.prototype.setScheduler = function(fn) {
@@ -159,11 +164,11 @@ Async.prototype.invokeFirst = function (fn, receiver, arg) {
     this._queueTick();
 };
 
-Async.prototype._drainQueue = function(queue, maxItemsToProcess) {
-    ASSERT(maxItemsToProcess >= 0);
+Async.prototype._drainQueue = function(queue, itemsToProcess) {
+    ASSERT(itemsToProcess >= 0);
     while (queue.length() > 0) {
 
-        if (maxItemsToProcess == 0) {
+        if (itemsToProcess === 0) {
             // can not process any more items
             // in this frame.
             break;
@@ -177,18 +182,18 @@ Async.prototype._drainQueue = function(queue, maxItemsToProcess) {
         var receiver = queue.shift();
         var arg = queue.shift();
         fn.call(receiver, arg);
-        maxItemsToProcess--;
+        itemsToProcess--;
     }
 
-    return maxItemsToProcess;
+    return itemsToProcess;
 };
 
-Async.prototype._drainQueues = function (maxItemsToProcess) {
+Async.prototype._drainQueues = function (itemsToProcess) {
     ASSERT(this._isTickUsed);
-    maxItemsToProcess = this._drainQueue(this._normalQueue, maxItemsToProcess);
+    itemsToProcess = this._drainQueue(this._normalQueue, itemsToProcess);
     this._reset();
     this._haveDrainedQueues = true;
-    this._drainQueue(this._lateQueue, maxItemsToProcess);
+    this._drainQueue(this._lateQueue, itemsToProcess);
 
     if (this._normalQueue.length() > 0 || this._lateQueue.length() > 0) {
         // couldn't drain the queue this time
