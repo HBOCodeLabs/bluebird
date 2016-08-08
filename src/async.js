@@ -15,10 +15,16 @@ function Async() {
     this._trampolineEnabled = true;
     var self = this;
     this.drainQueues = function () {
-        self._drainQueues();
+        self._drainQueues(self._batchSize);
     };
     this._customSetTimeout = undefined;
     this._schedule = schedule;
+
+    // by default set to large enough
+    // number that no batching would happen
+    // Number.MAX_SAFE_INTEGER would have been more
+    // appropriate but it isnt available for IE.
+    this._batchSize = Math.pow(2, 32) - 1;
 }
 
 Async.prototype.setScheduler = function(fn) {
@@ -26,6 +32,12 @@ Async.prototype.setScheduler = function(fn) {
     this._schedule = fn;
     this._customScheduler = true;
     return prev;
+};
+
+// set the batchsize for processing queue
+Async.prototype.setBatchSize = function(batchSize) {
+    ASSERT(batchSize > 0);
+    this._batchSize = batchSize;
 };
 
 Async.prototype.setTimeoutScheduler = function(setTimeoutFn) {
@@ -152,8 +164,16 @@ Async.prototype.invokeFirst = function (fn, receiver, arg) {
     this._queueTick();
 };
 
-Async.prototype._drainQueue = function(queue) {
+Async.prototype._drainQueue = function(queue, itemsToProcess) {
+    ASSERT(itemsToProcess >= 0);
     while (queue.length() > 0) {
+
+        if (itemsToProcess === 0) {
+            // can not process any more items
+            // in this frame.
+            break;
+        }
+
         var fn = queue.shift();
         if (typeof fn !== "function") {
             fn._settlePromises();
@@ -162,15 +182,24 @@ Async.prototype._drainQueue = function(queue) {
         var receiver = queue.shift();
         var arg = queue.shift();
         fn.call(receiver, arg);
+        itemsToProcess--;
     }
+
+    return itemsToProcess;
 };
 
-Async.prototype._drainQueues = function () {
+Async.prototype._drainQueues = function (itemsToProcess) {
     ASSERT(this._isTickUsed);
-    this._drainQueue(this._normalQueue);
+    itemsToProcess = this._drainQueue(this._normalQueue, itemsToProcess);
     this._reset();
     this._haveDrainedQueues = true;
-    this._drainQueue(this._lateQueue);
+    this._drainQueue(this._lateQueue, itemsToProcess);
+
+    if (this._normalQueue.length() > 0 || this._lateQueue.length() > 0) {
+        // couldn't drain the queue this time
+        // schedule nother drain.
+        this._queueTick();
+    }
 };
 
 Async.prototype._queueTick = function () {
