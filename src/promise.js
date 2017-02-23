@@ -708,6 +708,8 @@ Promise.prototype._fulfill = function (value) {
         } else {
             async.settlePromises(this);
         }
+    } else if (debug.trackHadronTest()) {
+        this._verifyCurrentTestMatches();
     }
 };
 
@@ -726,6 +728,9 @@ Promise.prototype._reject = function (reason) {
         async.settlePromises(this);
     } else {
         this._ensurePossibleRejectionHandled();
+        if (debug.trackHadronTest()) {
+            this._verifyCurrentTestMatches();
+        }
     }
 };
 
@@ -749,10 +754,7 @@ Promise.prototype._rejectPromises = function (len, reason) {
     }
 };
 
-Promise.prototype._settlePromises = function () {
-    var bitField = this._bitField;
-    var len = BIT_FIELD_READ(LENGTH_MASK);
-
+Promise.prototype._verifyCurrentTestMatches = function () {
     if (this.currentHadronTest !== undefined &&
         /*jshint -W117*/
         // NOTE: _global is passed down
@@ -760,14 +762,23 @@ Promise.prototype._settlePromises = function () {
         // by build process (tools/build.js!buildBrowser)
         _global.currentHadronTest !== this.currentHadronTest) {
         throw new Error(
-            "Promise was created by test : " + this.currentHadronTest +
-            "But was settled during      : " + _global.currentHadronTest +
+            "Promise (tag=" + this.tag + ") was created by test: " + this.currentHadronTest +
+            "but was settled during: " + _global.currentHadronTest +
             "\nStack @ creation:" +
             "\n==========================\n" +
             this.creationStack +
             "\n==========================\n" +
             "\nPromises should resolve during the test that created them " +
             "to avoid timing-related bugs.");
+    }
+};
+
+Promise.prototype._settlePromises = function () {
+    var bitField = this._bitField;
+    var len = BIT_FIELD_READ(LENGTH_MASK);
+
+    if (debug.trackHadronTest()) {
+        this._verifyCurrentTestMatches();
     }
 
     if (len > 0) {
