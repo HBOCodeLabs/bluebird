@@ -761,9 +761,13 @@ Promise.prototype._verifyCurrentTestMatches = function () {
         // by enclosed function which is added later
         // by build process (tools/build.js!buildBrowser)
         _global.currentHadronTest !== this.currentHadronTest) {
+        // Note: add the .debugName expando property to Promise instances to identify them uniquely
+        // and help figure out which particular promise is causing a violation.
         throw new Error(
-            "Promise (tag=" + this.tag + ") was created by test: " + this.currentHadronTest +
-            "but was settled during: " + _global.currentHadronTest +
+            "Promise (debugName=" + this.debugName + ") was created by test: " +
+            this.currentHadronTest + " but was settled during: " +
+            _global.currentHadronTest + " with value:\n" +
+            JSON.stringify(this._settledValue()) +
             "\nStack @ creation:" +
             "\n==========================\n" +
             this.creationStack +
