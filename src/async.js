@@ -202,6 +202,11 @@ Async.prototype._drainQueues = function (itemsToProcess) {
     }
 };
 
+Async.prototype.drainQueuesFully = function () {
+    this._drainQueues(this._normalQueue.length());
+    ASSERT(this._normalQueue.length() === 0);
+}
+
 Async.prototype._queueTick = function () {
     if (!this._isTickUsed) {
         this._isTickUsed = true;

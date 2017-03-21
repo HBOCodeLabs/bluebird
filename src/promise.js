@@ -250,6 +250,10 @@ Promise.setBatchSize = function(batchSize) {
     return async.setBatchSize(batchSize);
 };
 
+Promise.drainQueuesFully = function() {
+    async.drainQueuesFully();
+}
+
 Promise.prototype._then = function (
     didFulfill,
     didReject,
