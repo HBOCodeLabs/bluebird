@@ -760,7 +760,11 @@ Promise.prototype._verifyCurrentTestMatches = function () {
         // NOTE: _global is passed down
         // by enclosed function which is added later
         // by build process (tools/build.js!buildBrowser)
-        _global.currentHadronTest !== this.currentHadronTest) {
+        // NOTE: Do a substring match here, because we may add a suffix to the end of the currentHadronTest string
+        // e.g. at the end of a test, we may add a suffix to indicate the test has completed and we are now doing
+        // async cleanup work related to that test. We want to differentiate promises created during a test and
+        // promises created after execution of a test (i.e. promises created in-between tests).
+        _global.currentHadronTest.indexOf(this.currentHadronTest) < 0) {
         // Note: add the .debugName expando property to Promise instances to identify them uniquely
         // and help figure out which particular promise is causing a violation.
         throw new Error(
