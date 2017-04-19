@@ -117,7 +117,7 @@ Promise.enableHadronTestTracking = function (enable) {
 
 var disableLongStackTraces = function() {};
 Promise.longStackTraces = function () {
-    if (async.haveItemsQueued() && !config.longStackTraces) {
+    if (async.areItemsQueued() && !config.longStackTraces) {
         throw new Error(LONG_STACK_TRACES_ERROR);
     }
     if (!config.longStackTraces && longStackTracesIsSupported()) {
@@ -125,7 +125,7 @@ Promise.longStackTraces = function () {
         var Promise_attachExtraTrace = Promise.prototype._attachExtraTrace;
         config.longStackTraces = true;
         disableLongStackTraces = function() {
-            if (async.haveItemsQueued() && !config.longStackTraces) {
+            if (async.areItemsQueued() && !config.longStackTraces) {
                 throw new Error(LONG_STACK_TRACES_ERROR);
             }
             Promise.prototype._captureStackTrace = Promise_captureStackTrace;
@@ -251,9 +251,9 @@ Promise.config = function(opts) {
         }
     }
     if ("cancellation" in opts && opts.cancellation && !config.cancellation) {
-        if (async.haveItemsQueued()) {
+        if (async.areItemsQueued()) {
             throw new Error(
-                "cannot enable cancellation after promises are in use");
+                "cannot enable cancellation while promises are in use");
         }
         Promise.prototype._clearCancellationData =
             cancellationClearCancellationData;
