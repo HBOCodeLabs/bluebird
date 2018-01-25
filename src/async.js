@@ -201,16 +201,9 @@ Async.prototype._drainQueues = function (itemsToProcess) {
 };
 
 Async.prototype._fullyDrainQueues = function () {
-    // Try flushing five times before giving up
-    for (var i = 0; i < 5; ++i) {
-        this._drainQueue(this._normalQueue, this._normalQueue.length());
-        this._reset();
-        this._drainQueue(this._lateQueue, this._lateQueue.length());
-        if (this.areItemsQueued() === false) {
-            return;
-        }
-    }
-    throw new Error("Unable to fully drain the promise queues.");
+    this._drainQueue(this._normalQueue);
+    this._reset();
+    this._drainQueue(this._lateQueue);
 };
 
 Async.prototype._queueTick = function () {
