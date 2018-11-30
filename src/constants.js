@@ -122,7 +122,7 @@ CONSTANT(CONSTRUCT_ERROR_INVOCATION, "the promise constructor cannot be invoked 
     See http://goo.gl/MqrFmX\n");
 CONSTANT(NOT_GENERATOR_ERROR, "generatorFunction must be a function\n\n\
     See http://goo.gl/MqrFmX\n");
-CONSTANT(LONG_STACK_TRACES_ERROR, "cannot enable long stack traces while promises are in use\n\n\
+CONSTANT(LONG_STACK_TRACES_ERROR, "cannot enable long stack traces after promises have been created\n\n\
     See http://goo.gl/MqrFmX\n");
 CONSTANT(INSPECTION_VALUE_ERROR, "cannot get fulfillment value of a non-fulfilled promise\n\n\
     See http://goo.gl/MqrFmX\n");
