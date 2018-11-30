@@ -167,6 +167,7 @@ Async.prototype.invokeFirst = function (fn, receiver, arg) {
 Async.prototype._drainQueue = function(queue, itemsToProcess) {
     ASSERT(itemsToProcess >= 0);
     while (queue.length() > 0) {
+
         if (itemsToProcess === 0) {
             // can not process any more items
             // in this frame.
@@ -201,9 +202,10 @@ Async.prototype._drainQueues = function (itemsToProcess) {
 };
 
 Async.prototype._fullyDrainQueues = function () {
-    this._drainQueue(this._normalQueue);
+    this._drainQueue(this._normalQueue, this._normalQueue.length());
     this._reset();
-    this._drainQueue(this._lateQueue);
+    this._drainQueue(this._lateQueue, this._lateQueue.length());
+    ASSERT(!this.areItemsQueued());
 };
 
 Async.prototype._queueTick = function () {
