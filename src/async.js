@@ -11,6 +11,7 @@ function Async() {
     this._isTickUsed = false;
     this._lateQueue = new Queue(LATE_QUEUE_CAPACITY);
     this._normalQueue = new Queue(NORMAL_QUEUE_CAPACITY);
+    this._haveDrainedQueues = false;
     this._trampolineEnabled = true;
     var self = this;
     this.drainQueues = function () {
@@ -64,11 +65,10 @@ Async.prototype.disableTrampolineIfNecessary = function() {
     }
 };
 
-Async.prototype.areItemsQueued = function () {
-    var areItemsQueued = this._normalQueue.length() > 0 || this._lateQueue.length() > 0;
-    ASSERT(this._isTickUsed === false || areItemsQueued);
-    return areItemsQueued;
+Async.prototype.haveItemsQueued = function () {
+    return this._isTickUsed || this._haveDrainedQueues;
 };
+
 
 Async.prototype.fatalError = function(e, isNode) {
     if (isNode) {
@@ -167,6 +167,7 @@ Async.prototype.invokeFirst = function (fn, receiver, arg) {
 Async.prototype._drainQueue = function(queue, itemsToProcess) {
     ASSERT(itemsToProcess >= 0);
     while (queue.length() > 0) {
+
         if (itemsToProcess === 0) {
             // can not process any more items
             // in this frame.
@@ -191,23 +192,17 @@ Async.prototype._drainQueues = function (itemsToProcess) {
     ASSERT(this._isTickUsed);
     itemsToProcess = this._drainQueue(this._normalQueue, itemsToProcess);
     this._reset();
+    this._haveDrainedQueues = true;
     this._drainQueue(this._lateQueue, itemsToProcess);
 
-    if (this.areItemsQueued()) {
+    if (this._normalQueue.length() > 0 || this._lateQueue.length() > 0) {
         // couldn't drain the queue this time
         // schedule nother drain.
         this._queueTick();
     }
 };
 
-Async.prototype._fullyDrainQueues = function () {
-    this._drainQueue(this._normalQueue);
-    this._reset();
-    this._drainQueue(this._lateQueue);
-};
-
 Async.prototype._queueTick = function () {
-    ASSERT(this.areItemsQueued());
     if (!this._isTickUsed) {
         this._isTickUsed = true;
         this._schedule(this.drainQueues);
